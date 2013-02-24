@@ -1,4 +1,6 @@
 {
+  "keep_autojump_database_intact": false,
+
   "filepath_filters": [
       "^\\.git/*"
     , ".*\\.pyc$"
