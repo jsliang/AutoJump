@@ -101,6 +101,7 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
         self.file_list.append(path_str)
 
     if len(self.file_list) > 0:
+      self.file_list = sorted(self.file_list)
       self.window.show_quick_panel(self.file_list, self.on_done)
     else:
       sublime.error_message("%s is an empty folder." % self.picked_folder)
