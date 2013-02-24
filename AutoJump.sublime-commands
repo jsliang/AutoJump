@@ -1,3 +1,3 @@
 [
-    { "caption": "AutoJump: Open a file in visited folders", "command": "autojump_load_database" }
+    { "caption": "AutoJump: Open a File in a Visited Folder", "command": "autojump_load_database" }
 ]
