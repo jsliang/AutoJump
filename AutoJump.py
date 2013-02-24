@@ -52,24 +52,36 @@ def add_to_autojump_database(path):
     return
   run_shell_cmd('autojump -a "%s"' % path)
 
+def purge_autojump_database():
+  # Remove entries that no longer exist
+  run_shell_cmd('autojump --purge')
+
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
   def on_done(self, picked):
-    pass
+    open_path = os.path.join(self.picked_folder, self.file_list[picked])
+    self.window.open_file(open_path)
 
   def traverse_subfolder(self, picked):
     if picked == -1:
         return
 
-    picked_path = self.results[picked]
+    self.picked_folder = self.results[picked]
+    if not os.path.exists(self.picked_folder):
+      sublime.error_message("Folder %s does not exists." % self.picked_folder)
+      purge_autojump_database()
+      return
 
-    results = []
-    for dirpath, dirnames, filenames in os.walk(picked_path, followlinks=True):
+    self.file_list = []
+    for dirpath, dirnames, filenames in os.walk(self.picked_folder, followlinks=True):
       for filename in filenames:
           path_str = os.path.join(dirpath, filename)
-          path_str = path_str.replace(picked_path + '/', '')
-          results.append(path_str)
+          path_str = path_str.replace(self.picked_folder + '/', '')
+          self.file_list.append(path_str)
 
-    self.window.show_quick_panel(results, self.on_done)
+    if len(self.file_list) > 0:
+      self.window.show_quick_panel(self.file_list, self.on_done)
+    else:
+      sublime.error_message("%s is an empty folder." % self.picked_folder)
 
   def run(self):
     if not check_autojump_installation():
