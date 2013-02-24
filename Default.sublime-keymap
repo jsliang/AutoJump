@@ -1,0 +1,3 @@
+[
+	{"keys": ["shift+alt+j"], "command": "autojump_load_database"}
+]
