@@ -3,6 +3,6 @@
 
   "filepath_filters": [
       "^\\.git/*"
-    , ".*\\.pyc$"
+    , ".*\\.(pyc|cache)$"
     ]
 }
