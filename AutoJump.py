@@ -48,14 +48,7 @@ def add_to_autojump_database(path):
   # Add entry to autojump database
   if len(path) == 0:
     return
-
-  try:
-    # execute `autojump -a path`
-    subprocess.check_output(args = ["autojump", "-a %s" % path])
-  except subprocess.CalledProcessError:
-    pass
-  else:
-    pass
+  run_shell_cmd("autojump -a %s" % path)
 
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
   def on_done():
