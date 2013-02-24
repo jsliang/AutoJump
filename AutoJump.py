@@ -54,9 +54,22 @@ def add_to_autojump_database(path):
 
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
   def on_done(self, picked):
-    # TODO: traverse subfolder
-    sublime.message_dialog("test %d" % picked)
     pass
+
+  def traverse_subfolder(self, picked):
+    if picked == -1:
+        return
+
+    picked_path = self.results[picked]
+
+    results = []
+    for dirpath, dirnames, filenames in os.walk(picked_path, followlinks=True):
+      for filename in filenames:
+          path_str = os.path.join(dirpath, filename)
+          path_str = path_str.replace(picked_path + '/', '')
+          results.append(path_str)
+
+    self.window.show_quick_panel(results, self.on_done)
 
   def run(self):
     if not check_autojump_installation():
@@ -64,15 +77,15 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
         "Download and install autojump: https://github.com/joelthelion/autojump")
       return
 
-    results = load_autojump_database()
+    self.results = load_autojump_database()
 
     def show_quick_panel():
-      if not results:
+      if not self.results:
         sublime.error_message("No entries found in autojump database."
           "Please use `cd` command to visit any directory first.")
         return
 
-      self.window.show_quick_panel(results, self.on_done)
+      self.window.show_quick_panel(self.results, self.traverse_subfolder)
 
     sublime.set_timeout(show_quick_panel, 10)
 
