@@ -19,10 +19,6 @@ def run_shell_cmd(cmd):
                           stderr=subprocess.PIPE)
   (stdoutdata, stderrdata) = proc.communicate()
   if proc.poll():
-    sublime.error_message("The following command exited with status "
-                          + "code " + str(proc.poll()) + ":\n" + cmd
-                          + "\n\nOutput:\n" + stdoutdata
-                          + "\n\nError:\n" + stderrdata)
     return (False, None)
   else:
     return (True, stdoutdata)
@@ -38,7 +34,6 @@ def load_autojump_database():
   # execute `autojump --stat` and parse results
   (success, ajdb) = run_shell_cmd("autojump --stat")
   if not success:
-    sublime.error_message("Failed.")
     return None
 
   regex = re.compile("\d+.\d+:\s*(.+)")
@@ -47,7 +42,6 @@ def load_autojump_database():
   if len(aj_dirs) > 0:
     return aj_dirs
   else:
-    sublime.error_message("Failed.")
     return None
 
 def add_to_autojump_database(path):
@@ -74,13 +68,11 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
         "Download and install autojump: https://github.com/joelthelion/autojump")
       return
 
-    self.results = load_autojump_database()
+    results = load_autojump_database()
 
-    def show_quick_panel():
-        if not self.results:
-          sublime.error_message("No entries found in autojump database."
-            "Please use `cd` command to visit any directory first.")
-          return
-        self.window.show_quick_panel(self.results, self.on_done)
+    if not results:
+      sublime.error_message("No entries found in autojump database."
+        "Please use `cd` command to visit any directory first.")
+      return
 
-    sublime.set_timeout(show_quick_panel, 10)
+    self.window.show_quick_panel(results, self.on_done)
