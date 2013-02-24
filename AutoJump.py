@@ -26,7 +26,7 @@ def run_shell_cmd(cmd):
   else:
     return (True, stdoutdata)
 
-def check_autojump_installation():
+def autojump_installed():
   (success, __) = run_shell_cmd("autojump")
   if success:
     return True
@@ -108,22 +108,19 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
       sublime.error_message("%s is an empty folder." % self.picked_folder)
 
   def run(self):
-    if not check_autojump_installation():
+    if not autojump_installed():
       sublime.error_message("Please install autojump first.\n"
         "Download and install autojump: https://github.com/joelthelion/autojump")
       return
 
     self.results = load_autojump_database()
 
-    def show_quick_panel():
-      if not self.results:
-        sublime.error_message("No entries found in autojump database."
-          "Please use `cd` command to visit any directory first.")
-        return
+    if not self.results:
+      sublime.error_message("No entries found in autojump database."
+        "Please use `cd` command to visit any directory first.")
+      return
 
-      self.window.show_quick_panel(self.results, self.traverse_subfolder)
-
-    sublime.set_timeout(show_quick_panel, 10)
+    self.window.show_quick_panel(self.results, self.traverse_subfolder)
 
 class AutojumpUpdateDatabase(sublime_plugin.EventListener):
   def on_load(self, view):
