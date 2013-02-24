@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Faster **Goto Anything** in large projects through
-integration with joelthelion/autojump.
+AutoJump: Open a File in a Visited Folder
+
+Prerequistic: https://github.com/joelthelion/autojump
 """
 
 import os
