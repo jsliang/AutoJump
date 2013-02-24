@@ -1,5 +1,5 @@
 {
-  "keep_autojump_database_intact": false,
+  "update_autojump_database": true,
 
   "filepath_filters": [
       "^\\.git/*"

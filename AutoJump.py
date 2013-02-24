@@ -124,13 +124,13 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
 
 class AutojumpUpdateDatabase(sublime_plugin.EventListener):
   def on_load(self, view):
-    keep_autojump_database_intact = load_setting(view, "keep_autojump_database_intact", False)
-    if not keep_autojump_database_intact:
+    update_autojump_database = load_setting(view, "update_autojump_database", True)
+    if update_autojump_database:
       path = os.path.dirname( view.file_name() )
       add_to_autojump_database(path)
 
   def on_post_save(self, view):
-    keep_autojump_database_intact = load_setting(view, "keep_autojump_database_intact", False)
-    if not keep_autojump_database_intact:
+    update_autojump_database = load_setting(view, "update_autojump_database", True)
+    if update_autojump_database:
       path = os.path.dirname( view.file_name() )
       add_to_autojump_database(path)
