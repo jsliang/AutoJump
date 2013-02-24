@@ -40,7 +40,7 @@ def load_autojump_database():
   aj_dirs = [ x.strip() for x in regex.findall(ajdb) ]
 
   if len(aj_dirs) > 0:
-    return aj_dirs
+    return sorted(aj_dirs)
   else:
     return None
 
