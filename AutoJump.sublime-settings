@@ -1,0 +1,6 @@
+{
+  "filepath_filters": [
+      "^\\.git/*"
+    , ".*\\.pyc$"
+    ]
+}
