@@ -6,8 +6,10 @@ Faster **Goto Anything** in large projects through
 integration with joelthelion/autojump.
 """
 
+import os
 import re
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 import subprocess
 
 
@@ -48,7 +50,7 @@ def add_to_autojump_database(path):
   # Add entry to autojump database
   if len(path) == 0:
     return
-  run_shell_cmd("autojump -a %s" % path)
+  run_shell_cmd('autojump -a "%s"' % path)
 
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
   def on_done():
@@ -69,3 +71,12 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
       return
 
     self.window.show_quick_panel(results, self.on_done)
+
+class AutojumpUpdateDatabase(sublime_plugin.EventListener):
+  def on_load(self, view):
+    path = os.path.dirname( view.file_name() )
+    add_to_autojump_database(path)
+
+  def on_post_save(self, view):
+    path = os.path.dirname( view.file_name() )
+    add_to_autojump_database(path)
