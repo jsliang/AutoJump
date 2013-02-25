@@ -2,7 +2,7 @@
   "update_autojump_database": true,
 
   "filepath_filters": [
-      "^\\.git/*"
+      ".*\\.git/*"
     , ".*\\.(pyc|cache)$"
     ]
 }
