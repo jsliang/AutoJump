@@ -69,9 +69,20 @@ def load_setting(view, setting_name, default_value=None):
     return view.settings().get(setting_name, global_settings.get(setting_name, default_value))
 
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
-  def on_done(self, picked):
-    open_path = os.path.join(self.picked_folder, self.file_list[picked])
-    self.window.open_file(open_path)
+  def run(self):
+    if not autojump_installed():
+      sublime.error_message("Please install autojump first.\n"
+        "Download and install autojump: https://github.com/joelthelion/autojump")
+      return
+
+    self.results = load_autojump_database()
+
+    if not self.results:
+      sublime.error_message("No entries found in autojump database."
+        "Please use `cd` command to visit any directory first.")
+      return
+
+    self.window.show_quick_panel(self.results, self.traverse_subfolder)
 
   def traverse_subfolder(self, picked):
     if picked == -1:
@@ -108,20 +119,9 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
     else:
       sublime.error_message("%s is an empty folder." % self.picked_folder)
 
-  def run(self):
-    if not autojump_installed():
-      sublime.error_message("Please install autojump first.\n"
-        "Download and install autojump: https://github.com/joelthelion/autojump")
-      return
-
-    self.results = load_autojump_database()
-
-    if not self.results:
-      sublime.error_message("No entries found in autojump database."
-        "Please use `cd` command to visit any directory first.")
-      return
-
-    self.window.show_quick_panel(self.results, self.traverse_subfolder)
+  def on_done(self, picked):
+    open_path = os.path.join(self.picked_folder, self.file_list[picked])
+    self.window.open_file(open_path)
 
 class AutojumpUpdateDatabase(sublime_plugin.EventListener):
   def on_load(self, view):
