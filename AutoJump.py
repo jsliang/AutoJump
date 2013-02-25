@@ -123,7 +123,7 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
       return
 
     view = self.window.active_view()
-    filepath_filters = load_setting(view, "filepath_filters", None)
+    exclude_filepath_filters = load_setting(view, "exclude_filepath_filters", None)
 
     self.file_list = []
     for dirpath, dirnames, filenames in os.walk(self.picked_folder, followlinks=True):
@@ -132,8 +132,8 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
         path_str = path_str.replace(self.picked_folder + '/', '')
 
         ignore = False
-        for filepath_filter in filepath_filters:
-          if re.search(filepath_filter, path_str):
+        for exclude_filter in exclude_filepath_filters:
+          if re.search(exclude_filter, path_str):
             ignore = True
 
         if ignore:
