@@ -15,6 +15,9 @@ import subprocess
 
 
 def run_shell_cmd(cmd):
+  """
+  Run shell command and return (is_successful, output)
+  """
   proc = subprocess.Popen(args = [cmd],
                           shell=True,
                           stdin=subprocess.PIPE,
@@ -27,18 +30,25 @@ def run_shell_cmd(cmd):
     return (True, stdoutdata)
 
 def autojump_installed():
+  """
+  Check if autojump is installed.
+  """
   (success, __) = run_shell_cmd("autojump")
   if success:
     return True
   return False
 
 def load_autojump_database():
-  # Load autojump database
-  # execute `autojump --stat` and parse results
+  """
+  Load autojump database
+  """
+
+  # Execute `autojump --stat`
   (success, ajdb) = run_shell_cmd("autojump --stat")
   if not success:
     return None
 
+  # Parse results
   regex = re.compile("\d+.\d+:\s*(.+)")
   aj_dirs = [ x.strip() for x in regex.findall(ajdb) ]
   aj_dirs.reverse()
@@ -49,16 +59,24 @@ def load_autojump_database():
     return None
 
 def add_to_autojump_database(path):
-  # Add entry to autojump database
+  """
+  Add entry to autojump database
+  """
   if len(path) == 0:
     return
   run_shell_cmd('autojump -a "%s"' % path)
 
 def purge_autojump_database():
-  # Remove entries that no longer exist
+  """
+  Remove entries that no longer exist
+  """
   run_shell_cmd('autojump --purge')
 
 def load_setting(view, setting_name, default_value=None):
+    """
+    Load Sublime settings
+    """
+
     if len(setting_name) < 1:
         if default_value:
             return default_value
@@ -70,6 +88,9 @@ def load_setting(view, setting_name, default_value=None):
 
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
   def run(self):
+    """
+    List folders in autojump database for users to select
+    """
     if not autojump_installed():
       sublime.error_message("Please install autojump first.\n"
         "Download and install autojump: https://github.com/joelthelion/autojump")
@@ -85,6 +106,9 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
     self.window.show_quick_panel(self.results, self.traverse_subfolder)
 
   def traverse_subfolder(self, picked):
+    """
+    Traverse selected folder
+    """
     if picked == -1:
         return
 
@@ -120,10 +144,16 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
       sublime.error_message("%s is an empty folder." % self.picked_folder)
 
   def on_done(self, picked):
+    """
+    Open selected file
+    """
     open_path = os.path.join(self.picked_folder, self.file_list[picked])
     self.window.open_file(open_path)
 
 class AutojumpUpdateDatabase(sublime_plugin.EventListener):
+  """
+  Update autojump database on file load and after file save.
+  """
   def on_load(self, view):
     update_autojump_database = load_setting(view, "update_autojump_database", True)
     if update_autojump_database:
