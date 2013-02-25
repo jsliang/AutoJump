@@ -41,9 +41,10 @@ def load_autojump_database():
 
   regex = re.compile("\d+.\d+:\s*(.+)")
   aj_dirs = [ x.strip() for x in regex.findall(ajdb) ]
+  aj_dirs.reverse()
 
   if len(aj_dirs) > 0:
-    return sorted(aj_dirs)
+    return aj_dirs
   else:
     return None
 
