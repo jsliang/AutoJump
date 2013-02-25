@@ -115,7 +115,11 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
     self.picked_folder = self.results[picked]
     if not os.path.exists(self.picked_folder):
       sublime.error_message("Folder %s does not exists." % self.picked_folder)
-      purge_autojump_database()
+
+      update_autojump_database = load_setting(self.window.active_view(), "update_autojump_database", True)
+      if update_autojump_database:
+        purge_autojump_database()
+
       return
 
     view = self.window.active_view()
