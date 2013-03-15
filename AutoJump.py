@@ -122,15 +122,11 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
     List folders in autojump database for users to select
     """
     if not autojump_installed():
-      sublime.error_message("Please install autojump first.\n"
-        "Download and install autojump: https://github.com/joelthelion/autojump")
       return
 
     self.results = load_autojump_database()
 
     if not self.results:
-      sublime.error_message("No entries found in autojump database."
-        "Please use `cd` command to visit any directory first.")
       return
 
     self.window.show_quick_panel(self.results, self.traverse_subfolder)
