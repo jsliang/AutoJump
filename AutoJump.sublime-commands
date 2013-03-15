@@ -1,4 +1,4 @@
 [
-    { "caption": "AutoJump: Open a File in a Visited Folder", "command": "autojump_load_database" }
+    { "caption": "AutoJump: Open a File in a Visited Folder", "command": "autojump_traverse_visited_folder" }
 ,   { "caption": "AutoJump: Open a Recent File", "command": "autojump_open_recent_file" }
 ]

@@ -117,7 +117,7 @@ class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
 
     self.window.open_file(picked_file)
 
-class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
+class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
   def run(self):
     """
     List recently accessed folders for users to select
