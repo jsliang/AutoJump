@@ -6,5 +6,5 @@
     , ".*\\.(pyc|cache)$"
     ],
 
-  "max_recent_files": 30
+  "max_recent_files": 100
 }
