@@ -4,5 +4,7 @@
   "exclude_filepath_filters": [
       ".*\\.git/*"
     , ".*\\.(pyc|cache)$"
-    ]
+    ],
+
+  "max_recent_files": 30
 }

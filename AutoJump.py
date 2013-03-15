@@ -13,6 +13,7 @@ import sublime
 import sublime_plugin
 import subprocess
 
+base_name = "AutoJump.sublime-settings"
 
 def run_shell_cmd(cmd):
   """
@@ -82,7 +83,7 @@ def load_setting(view, setting_name, default_value=None):
             return default_value
         return None
 
-    global_settings = sublime.load_settings("AutoJump.sublime-settings")
+    global_settings = sublime.load_settings(base_name)
 
     return view.settings().get(setting_name, global_settings.get(setting_name, default_value))
 
@@ -158,14 +159,33 @@ class AutojumpUpdateDatabase(sublime_plugin.EventListener):
   """
   Update autojump database on file load and after file save.
   """
-  def on_load(self, view):
+
+  def update_database(self, view):
+    current_file_name = view.file_name()
+
     update_autojump_database = load_setting(view, "update_autojump_database", True)
     if update_autojump_database:
-      path = os.path.dirname( view.file_name() )
+      path = os.path.dirname(current_file_name)
       add_to_autojump_database(path)
 
+    recent_files = load_setting(view, "recent_files", None)
+    if recent_files is None:
+      recent_files = []
+    else:
+      if current_file_name in recent_files:
+        recent_files.remove(current_file_name)
+    recent_files.insert(0, current_file_name)
+
+    max_recent_files = load_setting(view, "max_recent_files", 30)
+    recent_files = recent_files[0:max_recent_files]
+
+    global_settings = sublime.load_settings(base_name)
+    global_settings.set("recent_files", recent_files)
+
+    sublime.save_settings(base_name)
+
+  def on_load(self, view):
+    self.update_database(view)
+
   def on_post_save(self, view):
-    update_autojump_database = load_setting(view, "update_autojump_database", True)
-    if update_autojump_database:
-      path = os.path.dirname( view.file_name() )
-      add_to_autojump_database(path)
+    self.update_database(view)
