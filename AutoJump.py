@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-AutoJump: Open a File in a Visited Folder
+AutoJump: Open a Recent File or a File in a Visited Folder
 
-Prerequistic: https://github.com/joelthelion/autojump
+Works with joelthelion/autojump:
+  https://github.com/joelthelion/autojump
 """
 
 import os
@@ -182,17 +183,19 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
 
 class AutojumpUpdateDatabase(sublime_plugin.EventListener):
   """
-  Update autojump database on file load and after file save.
+  Update package setting & autojump database on file load and after file save.
   """
 
   def update_database(self, view):
     current_file_name = view.file_name()
 
+    # update autojump database
     update_autojump_database = load_setting(view, "update_autojump_database", True)
     if update_autojump_database:
       path = os.path.dirname(current_file_name)
       add_to_autojump_database(path)
 
+    # update package setting: recent_files
     recent_files = load_setting(view, "recent_files", None)
     if recent_files is None:
       recent_files = []
