@@ -125,10 +125,16 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
     if not autojump_installed():
       return
 
-    self.results = load_autojump_database()
+    results = load_autojump_database()
 
-    if not self.results:
+    if not results:
       return
+
+    self.results = []
+    for path in results:
+      folder_name = os.path.split(path)[1]
+      folder_path = path
+      self.results.append( [folder_name, folder_path] )
 
     self.window.show_quick_panel(self.results, self.traverse_subfolder)
 
@@ -139,7 +145,7 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
     if picked == -1:
         return
 
-    self.picked_folder = self.results[picked]
+    self.picked_folder = self.results[picked][1]
     if not os.path.exists(self.picked_folder):
       sublime.error_message("Folder %s does not exists." % self.picked_folder)
 
