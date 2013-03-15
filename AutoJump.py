@@ -48,7 +48,7 @@ def load_autojump_database():
   # Execute `autojump --stat`
   (success, ajdb) = run_shell_cmd("autojump --stat")
   if not success:
-    return None
+    return []
 
   # Parse results
   regex = re.compile("\d+.\d+:\s*(.+)")
@@ -58,7 +58,7 @@ def load_autojump_database():
   if len(aj_dirs) > 0:
     return aj_dirs
   else:
-    return None
+    return []
 
 def add_to_autojump_database(path):
   """
@@ -120,15 +120,23 @@ class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
   def run(self):
     """
-    List folders in autojump database for users to select
+    List recently accessed folders for users to select
     """
-    if not autojump_installed():
-      return
 
-    results = load_autojump_database()
+    results = []
+    if autojump_installed():
+      # if we have installed joelthelion/autojump, use its database
+      results = load_autojump_database()
+    else:
+      # otherwise we extract recently accessed folder paths from our recent_files
+      recent_files = load_setting(self.window.active_view(), "recent_files", None)
+      if recent_files is None:
+        recent_files = []
 
-    if not results:
-      return
+      for recent_file in recent_files:
+        folder_path = os.path.dirname(recent_file)
+        if not folder_path in results:
+          results.append( os.path.dirname(recent_file) )
 
     self.results = []
     for path in results:
