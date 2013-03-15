@@ -184,6 +184,10 @@ class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
     """
     Open selected file
     """
+
+    if picked == -1:
+        return
+
     open_path = os.path.join(self.picked_folder, self.file_list[picked])
     self.window.open_file(open_path)
 
