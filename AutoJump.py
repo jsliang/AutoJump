@@ -138,6 +138,10 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
         if not folder_path in results:
           results.append( os.path.dirname(recent_file) )
 
+    user_path = os.path.expanduser("~")
+    if not user_path in results:
+      results.append(user_path)
+
     self.results = []
     for path in results:
       folder_name = os.path.split(path)[1]
