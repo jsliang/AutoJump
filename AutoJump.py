@@ -87,6 +87,35 @@ def load_setting(view, setting_name, default_value=None):
 
     return view.settings().get(setting_name, global_settings.get(setting_name, default_value))
 
+class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
+  def run(self):
+    """
+    Load recent files from settings
+    """
+
+    recent_files = load_setting(self.window.active_view(), "recent_files", None)
+    if recent_files is None:
+      recent_files = []
+
+    self.recent_files = []
+    for recent_file in recent_files:
+      file_basename = os.path.basename(recent_file)
+      file_fullname = recent_file
+      self.recent_files.append( [file_basename, file_fullname] )
+
+    self.window.show_quick_panel(self.recent_files, self.on_done)
+
+  def on_done(self, picked):
+    """
+    Open selected file
+    """
+    if picked == -1:
+        return
+
+    picked_file = self.recent_files[picked][1]
+
+    self.window.open_file(picked_file)
+
 class AutojumpLoadDatabaseCommand(sublime_plugin.WindowCommand):
   def run(self):
     """
