@@ -111,6 +111,9 @@ def remove_nonexisting_entries(view):
   sublime.save_settings(base_name)
 
 def load_recent_files(view):
+  """
+  Load recent file list from AutoJump package setting & Session.sublime_session
+  """
   # Load recent file list from AutoJump package setting
   recent_files = load_setting(view, "recent_files", None)
   if recent_files is None:
