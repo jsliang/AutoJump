@@ -8,6 +8,7 @@ Works with joelthelion/autojump:
   https://github.com/joelthelion/autojump
 """
 
+import json
 import os
 import re
 import sublime
@@ -114,6 +115,29 @@ class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
     recent_files = load_setting(self.window.active_view(), "recent_files", None)
     if recent_files is None:
       recent_files = []
+
+    session_dir = os.path.join( os.path.dirname( sublime.packages_path() ), "Settings")
+    session_file = os.path.join(session_dir, "Session.sublime_session")
+    if os.path.isfile(session_file):
+      with open(session_file, 'r') as f:
+        file_content = f.read()
+
+      if len(file_content) > 0:
+        regex = re.compile("\"file_history\":.*?\[.*?\]",re.DOTALL)
+        if regex.search(file_content):
+          try:
+            file_history_strs = regex.findall(file_content)[0]
+            for file_history_str in file_history_strs:
+              session_data = json.loads("{%s}" % file_history_str)
+
+              if session_data:
+                for path in session_data["file_history"]:
+                  if not path in recent_files:
+                    recent_files.append(path)
+          except:
+            pass
+          finally:
+            pass
 
     self.recent_files = []
     for recent_file in recent_files:
