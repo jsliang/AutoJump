@@ -75,18 +75,18 @@ def purge_autojump_database():
   run_shell_cmd('autojump --purge')
 
 def load_setting(view, setting_name, default_value=None):
-    """
-    Load Sublime settings
-    """
+  """
+  Load Sublime settings
+  """
 
-    if len(setting_name) < 1:
-        if default_value:
-            return default_value
-        return None
+  if len(setting_name) < 1:
+    if default_value:
+      return default_value
+    return None
 
-    global_settings = sublime.load_settings(base_name)
+  global_settings = sublime.load_settings(base_name)
 
-    return view.settings().get(setting_name, global_settings.get(setting_name, default_value))
+  return view.settings().get(setting_name, global_settings.get(setting_name, default_value))
 
 class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
   def run(self):
@@ -155,7 +155,7 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
     Traverse selected folder
     """
     if picked == -1:
-        return
+      return
 
     self.picked_folder = self.results[picked][1]
     if not os.path.exists(self.picked_folder):
@@ -198,7 +198,7 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
     """
 
     if picked == -1:
-        return
+      return
 
     open_path = os.path.join(self.picked_folder, self.file_list[picked])
     self.window.open_file(open_path)
