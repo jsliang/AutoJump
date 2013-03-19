@@ -88,6 +88,23 @@ def load_setting(view, setting_name, default_value=None):
 
   return view.settings().get(setting_name, global_settings.get(setting_name, default_value))
 
+def remove_nonexisting_entries(view, path):
+  update_autojump_database = load_setting(view, "update_autojump_database", True)
+  if update_autojump_database:
+    purge_autojump_database()
+
+  recent_files = load_setting(view, "recent_files", None)
+  if recent_files is None:
+    return
+
+  if path in recent_files:
+    recent_files.remove(path)
+
+    global_settings = sublime.load_settings(base_name)
+    global_settings.set("recent_files", recent_files)
+
+    sublime.save_settings(base_name)
+
 class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
   def run(self):
     """
@@ -115,7 +132,11 @@ class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
 
     picked_file = self.recent_files[picked][1]
 
-    self.window.open_file(picked_file)
+    if os.path.exists(picked_file):
+      self.window.open_file(picked_file)
+    else:
+      sublime.error_message("File %s does not exist." % picked_file)
+      remove_nonexisting_entries(self.window.active_view(), picked_file)
 
 class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
   def run(self):
