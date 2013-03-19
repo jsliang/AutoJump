@@ -106,38 +106,44 @@ def remove_nonexisting_entries(view, path):
 
     sublime.save_settings(base_name)
 
+def load_recent_files(view):
+  # Load recent file list from AutoJump package setting
+  recent_files = load_setting(view, "recent_files", None)
+  if recent_files is None:
+    recent_files = []
+
+  # Load recent file list from Session.sublime_session
+  session_dir = os.path.join( os.path.dirname( sublime.packages_path() ), "Settings")
+  session_file = os.path.join(session_dir, "Session.sublime_session")
+  if os.path.isfile(session_file):
+    with open(session_file, 'r') as f:
+      file_content = f.read()
+
+    if len(file_content) > 0:
+      regex = re.compile("\"file_history\":.*?\[.*?\]",re.DOTALL)
+      if regex.search(file_content):
+        try:
+          file_history_strs = regex.findall(file_content)[0]
+          for file_history_str in file_history_strs:
+            session_data = json.loads("{%s}" % file_history_str)
+
+            if session_data:
+              for path in session_data["file_history"]:
+                if not path in recent_files:
+                  recent_files.append(path)
+        except:
+          pass
+        finally:
+          pass
+
+  return recent_files
+
 class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
   def run(self):
     """
     Load recent files from settings
     """
-
-    recent_files = load_setting(self.window.active_view(), "recent_files", None)
-    if recent_files is None:
-      recent_files = []
-
-    session_dir = os.path.join( os.path.dirname( sublime.packages_path() ), "Settings")
-    session_file = os.path.join(session_dir, "Session.sublime_session")
-    if os.path.isfile(session_file):
-      with open(session_file, 'r') as f:
-        file_content = f.read()
-
-      if len(file_content) > 0:
-        regex = re.compile("\"file_history\":.*?\[.*?\]",re.DOTALL)
-        if regex.search(file_content):
-          try:
-            file_history_strs = regex.findall(file_content)[0]
-            for file_history_str in file_history_strs:
-              session_data = json.loads("{%s}" % file_history_str)
-
-              if session_data:
-                for path in session_data["file_history"]:
-                  if not path in recent_files:
-                    recent_files.append(path)
-          except:
-            pass
-          finally:
-            pass
+    recent_files = load_recent_files(self.window.active_view())
 
     self.recent_files = []
     for recent_file in recent_files:
@@ -174,9 +180,7 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
       results = load_autojump_database()
     else:
       # otherwise we extract recently accessed folder paths from our recent_files
-      recent_files = load_setting(self.window.active_view(), "recent_files", None)
-      if recent_files is None:
-        recent_files = []
+      recent_files = load_recent_files(self.window.active_view())
 
       for recent_file in recent_files:
         folder_path = os.path.dirname(recent_file)
