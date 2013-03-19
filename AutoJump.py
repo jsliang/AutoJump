@@ -89,7 +89,10 @@ def load_setting(view, setting_name, default_value=None):
 
   return view.settings().get(setting_name, global_settings.get(setting_name, default_value))
 
-def remove_nonexisting_entries(view, path):
+def remove_nonexisting_entries(view):
+  """
+  Purge recent file list
+  """
   update_autojump_database = load_setting(view, "update_autojump_database", True)
   if update_autojump_database:
     purge_autojump_database()
@@ -98,13 +101,14 @@ def remove_nonexisting_entries(view, path):
   if recent_files is None:
     return
 
-  if path in recent_files:
-    recent_files.remove(path)
+  for path in recent_files:
+    if not os.path.isfile(path):
+      recent_files.remove(path)
 
-    global_settings = sublime.load_settings(base_name)
-    global_settings.set("recent_files", recent_files)
+  global_settings = sublime.load_settings(base_name)
+  global_settings.set("recent_files", recent_files)
 
-    sublime.save_settings(base_name)
+  sublime.save_settings(base_name)
 
 def load_recent_files(view):
   # Load recent file list from AutoJump package setting
@@ -166,7 +170,7 @@ class AutojumpOpenRecentFileCommand(sublime_plugin.WindowCommand):
       self.window.open_file(picked_file)
     else:
       sublime.error_message("File %s does not exist." % picked_file)
-      remove_nonexisting_entries(self.window.active_view(), picked_file)
+      remove_nonexisting_entries(self.window.active_view())
 
 class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
   def run(self):
@@ -209,11 +213,7 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
     self.picked_folder = self.results[picked][1]
     if not os.path.exists(self.picked_folder):
       sublime.error_message("Folder %s does not exist." % self.picked_folder)
-
-      update_autojump_database = load_setting(self.window.active_view(), "update_autojump_database", True)
-      if update_autojump_database:
-        purge_autojump_database()
-
+      remove_nonexisting_entries()
       return
 
     view = self.window.active_view()
@@ -274,9 +274,6 @@ class AutojumpUpdateDatabase(sublime_plugin.EventListener):
       if current_file_name in recent_files:
         recent_files.remove(current_file_name)
     recent_files.insert(0, current_file_name)
-
-    max_recent_files = load_setting(view, "max_recent_files", 30)
-    recent_files = recent_files[0:max_recent_files]
 
     global_settings = sublime.load_settings(base_name)
     global_settings.set("recent_files", recent_files)
