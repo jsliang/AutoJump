@@ -159,7 +159,7 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
 
     self.picked_folder = self.results[picked][1]
     if not os.path.exists(self.picked_folder):
-      sublime.error_message("Folder %s does not exists." % self.picked_folder)
+      sublime.error_message("Folder %s does not exist." % self.picked_folder)
 
       update_autojump_database = load_setting(self.window.active_view(), "update_autojump_database", True)
       if update_autojump_database:
