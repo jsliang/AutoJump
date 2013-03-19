@@ -51,9 +51,12 @@ def load_autojump_database():
   if not success:
     return []
 
+  # Remove the "total key weight" and "stored directories" entries
+  db_content, __ = ajdb.split("________________________________________")
+
   # Parse results
   regex = re.compile("\d+.\d+:\s*(.+)")
-  aj_dirs = [ x.strip() for x in regex.findall(ajdb) ]
+  aj_dirs = [ x.strip() for x in regex.findall(db_content) ]
   aj_dirs.reverse()
 
   if len(aj_dirs) > 0:
