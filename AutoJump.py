@@ -182,17 +182,17 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
     """
 
     results = []
-    if autojump_installed():
-      # if we have installed joelthelion/autojump, use its database
-      results = load_autojump_database()
-    else:
-      # otherwise we extract recently accessed folder paths from our recent_files
-      recent_files = load_recent_files(self.window.active_view())
 
-      for recent_file in recent_files:
-        folder_path = os.path.dirname(recent_file)
-        if not folder_path in results:
-          results.append( os.path.dirname(recent_file) )
+    # if we have installed joelthelion/autojump, use its database
+    if autojump_installed():
+      results = load_autojump_database()
+    
+    # we also extract recently accessed folder paths from our recent_files
+    recent_files = load_recent_files(self.window.active_view())
+    for recent_file in recent_files:
+      folder_path = os.path.dirname(recent_file)
+      if not folder_path in results:
+        results.append( os.path.dirname(recent_file) )
 
     user_path = os.path.expanduser("~")
     if not user_path in results:
