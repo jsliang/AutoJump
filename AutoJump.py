@@ -13,70 +13,9 @@ import os
 import re
 import sublime
 import sublime_plugin
-import subprocess
+import autojump_joelthelion
 
 base_name = "AutoJump.sublime-settings"
-
-def run_shell_cmd(cmd):
-  """
-  Run shell command and return (is_successful, output)
-  """
-  proc = subprocess.Popen(args = [cmd],
-                          shell=True,
-                          stdin=subprocess.PIPE,
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
-  (stdoutdata, stderrdata) = proc.communicate()
-  if proc.poll():
-    return (False, None)
-  else:
-    return (True, stdoutdata)
-
-def autojump_installed():
-  """
-  Check if autojump is installed.
-  """
-  (success, __) = run_shell_cmd("autojump")
-  if success:
-    return True
-  return False
-
-def load_autojump_database():
-  """
-  Load autojump database
-  """
-
-  # Execute `autojump --stat`
-  (success, ajdb) = run_shell_cmd("autojump --stat")
-  if not success:
-    return []
-
-  # Remove the "total key weight" and "stored directories" entries
-  db_content, __ = ajdb.split("________________________________________")
-
-  # Parse results
-  regex = re.compile("\d+.\d+:\s*(.+)")
-  aj_dirs = [ x.strip() for x in regex.findall(db_content) ]
-  aj_dirs.reverse()
-
-  if len(aj_dirs) > 0:
-    return aj_dirs
-  else:
-    return []
-
-def add_to_autojump_database(path):
-  """
-  Add entry to autojump database
-  """
-  if len(path) == 0:
-    return
-  run_shell_cmd('autojump -a "%s"' % path)
-
-def purge_autojump_database():
-  """
-  Remove entries that no longer exist
-  """
-  run_shell_cmd('autojump --purge')
 
 def load_setting(view, setting_name, default_value=None):
   """
@@ -98,7 +37,7 @@ def remove_nonexisting_entries(view):
   """
   update_autojump_database = load_setting(view, "update_autojump_database", True)
   if update_autojump_database:
-    purge_autojump_database()
+    autojump_joelthelion.purge_autojump_database()
 
   recent_files = load_setting(view, "recent_files", None)
   if recent_files is None:
@@ -187,9 +126,9 @@ class AutojumpTraverseVisitedFolderCommand(sublime_plugin.WindowCommand):
     results = []
 
     # if we have installed joelthelion/autojump, use its database
-    if autojump_installed():
-      results = load_autojump_database()
-    
+    if autojump_joelthelion.autojump_installed():
+      results = autojump_joelthelion.load_autojump_database()
+
     # we also extract recently accessed folder paths from our recent_files
     recent_files = load_recent_files(self.window.active_view())
     for recent_file in recent_files:
@@ -270,7 +209,7 @@ class AutojumpUpdateDatabase(sublime_plugin.EventListener):
     update_autojump_database = load_setting(view, "update_autojump_database", True)
     if update_autojump_database:
       path = os.path.dirname(current_file_name)
-      add_to_autojump_database(path)
+      autojump_joelthelion.add_to_autojump_database(path)
 
     # update package setting: recent_files
     recent_files = load_setting(view, "recent_files", None)
