@@ -1,0 +1,4 @@
+[
+	{"keys": ["super+j"], "command": "autojump_traverse_visited_folder"}, 
+	{"keys": ["super+k"], "command": "autojump_open_recent_file"}
+]
